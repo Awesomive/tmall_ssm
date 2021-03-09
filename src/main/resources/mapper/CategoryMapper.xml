@@ -11,8 +11,11 @@
         </if>
 
     </select>
-
     <select id="total" resultType="int">
         select count(*) from category
     </select>
+<!--keyProperty="id"  useGeneratedKeys="true" 用于将自增长的id保存在category中，使用getid即可获取-->
+    <insert id="add"  keyProperty="id"  useGeneratedKeys="true" parameterType="Category" >
+        insert into category ( name ) values (#{name})
+    </insert>
 </mapper>

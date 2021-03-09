@@ -7,4 +7,7 @@ import java.util.List;
 public interface CategoryService{
     int total();
     List<Category> list(Page page);
+
+    void add(Category category);
+
 }

@@ -9,6 +9,7 @@
     $(function(){
 
         $("#addForm").submit(function(){
+            //函数checkEmpty，在adminHeader.jsp 中定义
             if(!checkEmpty("name","分类名称"))
                 return false;
             if(!checkEmpty("categoryPic","分类图片"))
@@ -65,6 +66,7 @@
     <div class="panel panel-warning addDiv">
         <div class="panel-heading">新增分类</div>
         <div class="panel-body">
+<%--                                                        必须有enctype="multipart/form-data"，这样才能上传文件--%>
             <form method="post" id="addForm" action="admin_category_add" enctype="multipart/form-data">
                 <table class="addTable">
                     <tr>
@@ -74,6 +76,7 @@
                     <tr>
                         <td>分类圖片</td>
                         <td>
+<%--                        accept="image/*" 这样把上传的文件类型限制在了图片--%>
                             <input id="categoryPic" accept="image/*" type="file" name="image" />
                         </td>
                     </tr>
@@ -85,7 +88,6 @@
                 </table>
             </form>
         </div>
-    </div>
 
 </div>
 

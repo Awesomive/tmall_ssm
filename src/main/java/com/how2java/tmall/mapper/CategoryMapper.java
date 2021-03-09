@@ -6,7 +6,9 @@ import com.how2java.tmall.pojo.Category;
 import java.util.List;
 
 public interface CategoryMapper {
-    public List<Category> list(Page page);
+    List<Category> list(Page page);
 
-    public int total();
+    int total();
+
+    void add(Category category);
 }
