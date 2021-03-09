@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpSession;
@@ -76,4 +77,43 @@ public class CategoryController {
         return "redirect:/admin_category_list";
     }
 
+
+    //映射admin_category_edit路径的访问
+    @RequestMapping("admin_category_edit")
+    //参数id用来接受注入
+    public String edit(int id,Model model) throws IOException {
+        //通过categoryService.get获取Category对象
+        Category c= categoryService.get(id);
+        //把对象放在“c"上
+        model.addAttribute("c", c);
+        //返回editCategory.jsp
+        return "admin/editCategory";
+    }
+
+
+    //update 方法映射路径admin_category_update的访问
+    @RequestMapping("admin_category_update")
+    /*
+    参数 Category c接受页面提交的分类名称
+    参数 session 用于在后续获取当前应用的路径
+    UploadedImageFile 用于接受上传的图片
+     */
+    public String update(Category c, HttpSession session, UploadedImageFile uploadedImageFile) throws IOException {
+        //通过categoryService更新c对象
+        categoryService.update(c);
+        //上传图片文件
+        MultipartFile image = uploadedImageFile.getImage();
+        //首先判断是否有上传图片，如果有上传，那么通过session获取ControllerContext,再通过getRealPath定位存放分类图片的路径。
+        if(null!=image &&!image.isEmpty()){
+            File  imageFolder= new File(session.getServletContext().getRealPath("img/category"));
+            //根据分类id创建文件名
+            File file = new File(imageFolder,c.getId()+".jpg");
+            //通过UploadedImageFile 把浏览器传递过来的图片保存在上述指定的位置
+            image.transferTo(file);
+            //通过ImageUtil.change2jpg(file); 确保图片格式一定是jpg，而不仅仅是后缀名是jpg.
+            BufferedImage img = ImageUtil.change2jpg(file);
+            ImageIO.write(img, "jpg", file);
+        }
+        return "redirect:/admin_category_list";
+    }
 }
