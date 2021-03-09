@@ -58,7 +58,22 @@ public class CategoryController {
         ImageIO.write(img, "jpg", file);
         //客户端跳转到admin_category_list
         return "redirect:/admin_category_list";
+    }
 
+
+    //映射路径admin_category_delete
+    @RequestMapping("admin_category_delete")
+    //提供参数接受id注入
+    //提供session参数，用于后续定位文件位置
+    public String delete(int id, HttpSession session) throws IOException {
+        //通过categoryService删除数据
+        categoryService.delete(id);
+        //通过session获取ControllerContext然后获取分类图片位置，接着删除分类图片
+        File imageFolder = new File(session.getServletContext().getRealPath("img/category"));
+        File file = new File(imageFolder, id + ".jpg");
+        file.delete();
+        //客户端跳转到 admin_category_list
+        return "redirect:/admin_category_list";
     }
 
 }
