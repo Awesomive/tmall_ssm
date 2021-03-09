@@ -5,6 +5,14 @@
 
 <mapper namespace="com.how2java.tmall.mapper.CategoryMapper">
     <select id="list" resultType="Category">
-        select * from   category order by id desc
+        select * from   category         order by id desc
+        <if test="start!=null and count!=null">
+            limit #{start},#{count}
+        </if>
+
+    </select>
+
+    <select id="total" resultType="int">
+        select count(*) from category
     </select>
 </mapper>
