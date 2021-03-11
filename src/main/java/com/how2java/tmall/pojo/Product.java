@@ -1,6 +1,7 @@
 package com.how2java.tmall.pojo;
 
 import java.util.Date;
+import java.util.List;
 
 public class Product {
     private Integer id;
@@ -18,6 +19,17 @@ public class Product {
     private Integer cid;
 
     private Date createDate;
+
+    /*非数据库字段*/
+    private Category  category;
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 
     public Integer getId() {
         return id;
@@ -82,4 +94,5 @@ public class Product {
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
     }
+
 }
