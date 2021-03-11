@@ -4,7 +4,9 @@ import com.how2java.tmall.mapper.ProductMapper;
 import com.how2java.tmall.pojo.Category;
 import com.how2java.tmall.pojo.Product;
 import com.how2java.tmall.pojo.ProductExample;
+import com.how2java.tmall.pojo.ProductImage;
 import com.how2java.tmall.service.CategoryService;
+import com.how2java.tmall.service.ProductImageService;
 import com.how2java.tmall.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ public class ProductServiceImpl implements ProductService {
     ProductMapper productMapper;
     @Autowired
     CategoryService categoryService;
+    @Autowired
+    ProductImageService productImageService;
 
     @Override
     public void add(Product p) {
@@ -35,6 +39,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product get(int id) {
         Product p = productMapper.selectByPrimaryKey(id);
+        //调用setFirstProductImage(Product p) 为单个产品设置图片
+        setFirstProductImage(p);
         setCategory(p);
         return p;
     }
@@ -56,6 +62,26 @@ public class ProductServiceImpl implements ProductService {
         example.setOrderByClause("id desc");
         List result = productMapper.selectByExample(example);
         setCategory(result);
+        //调用setFirstProductImage(List<Product> ps) 为多个产品设置图片
+        setFirstProductImage(result);
         return result;
     }
+
+    @Override
+    //根据pid和图片类型查询出所有的单个图片，然后把第一个取出来放在firstProductImage上。
+    public void setFirstProductImage(Product p) {
+        List<ProductImage> pis = productImageService.list(p.getId(), ProductImageService.type_single);
+        if (!pis.isEmpty()) {
+            ProductImage pi = pis.get(0);
+            p.setFirstProductImage(pi);
+        }
+    }
+
+    //给多个产品设置图片
+    public void setFirstProductImage(List<Product> ps) {
+        for (Product p : ps) {
+            setFirstProductImage(p);
+        }
+    }
+
 }

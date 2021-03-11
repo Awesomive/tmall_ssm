@@ -37,6 +37,7 @@ public class ImageUtil {
         }
     }
 
+    //转换图片大小并复制
     public static void resizeImage(File srcFile, int width,int height, File destFile) {
         try {
             if(!destFile.getParentFile().exists())
@@ -50,6 +51,7 @@ public class ImageUtil {
         }
     }
 
+    //转换目标图片大小
     public static Image resizeImage(Image srcImage, int width, int height) {
         try {
 
