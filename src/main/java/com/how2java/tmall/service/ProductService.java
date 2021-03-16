@@ -13,4 +13,9 @@ public interface ProductService {
     List list(int cid);
     void setFirstProductImage(Product p);
 
+    void fill(List<Category> cs);
+
+    void fill(Category c);
+
+    void fillByRow(List<Category> cs);
 }
