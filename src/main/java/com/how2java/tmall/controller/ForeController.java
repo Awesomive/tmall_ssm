@@ -1,7 +1,6 @@
 package com.how2java.tmall.controller;
 
-import com.how2java.tmall.pojo.Category;
-import com.how2java.tmall.pojo.User;
+import com.how2java.tmall.pojo.*;
 import com.how2java.tmall.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -30,6 +29,8 @@ public class ForeController {
     OrderService orderService;
     @Autowired
     OrderItemService orderItemService;
+    @Autowired
+    ReviewService reviewService;
 
     @RequestMapping("forehome")
     public String home(Model model) {
@@ -79,4 +80,41 @@ public class ForeController {
         session.setAttribute("user", user);
         return "redirect:forehome";
     }
+
+    @RequestMapping("forelogout")
+    public String logout( HttpSession session) {
+        //在session中去掉"user"
+        session.removeAttribute("user");
+        //客户端跳转到首页
+        return "redirect:forehome";
+    }
+
+    @RequestMapping("foreproduct")
+    //获取参数pid
+    public String product( int pid, Model model) {
+        //根据pid获取Product 对象p
+        Product p = productService.get(pid);
+
+        //根据对象p，获取这个产品对应的单个图片集合
+        List<ProductImage> productSingleImages = productImageService.list(p.getId(), ProductImageService.type_single);
+        //根据对象p，获取这个产品对应的详情图片集合
+        List<ProductImage> productDetailImages = productImageService.list(p.getId(), ProductImageService.type_detail);
+        p.setProductSingleImages(productSingleImages);
+        p.setProductDetailImages(productDetailImages);
+
+        //获取产品的所有属性值
+        List<PropertyValue> pvs = propertyValueService.list(p.getId());
+        //获取产品对应的所有的评价
+        List<Review> reviews = reviewService.list(p.getId());
+        //设置产品的销量和评价数量
+        productService.setSaleAndReviewNumber(p);
+        //把上述取值放在request属性上
+        model.addAttribute("reviews", reviews);
+        model.addAttribute("p", p);
+        model.addAttribute("pvs", pvs);
+        //服务端跳转到 "product.jsp" 页面
+        return "fore/product";
+    }
+
 }
+
