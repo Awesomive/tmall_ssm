@@ -211,7 +211,58 @@ public class ForeController {
         //服务端跳转到 searchResult.jsp 页面
         return "fore/searchResult";
     }
+
+
+    //通过上个步骤访问的地址 /forebuyone 导致ForeController.buyone()方法被调用
+    @RequestMapping("forebuyone")
+    //获取参数pid
+    //获取参数num
+    public String buyone(int pid, int num, HttpSession session) {
+        //根据pid获取产品对象p
+        Product p = productService.get(pid);
+        int oiid = 0;
+
+        //从session中获取用户对象user
+        User user =(User)  session.getAttribute("user");
+        boolean found = false;
+        //如果已经存在这个产品对应的OrderItem，并且还没有生成订单，即还在购物车中。 那么就应该在对应的OrderItem基础上，调整数量
+        //基于用户对象user，查询没有生成订单的订单项集合
+        List<OrderItem> ois = orderItemService.listByUser(user.getId());
+        //遍历这个集合
+        for (OrderItem oi : ois) {
+            if(oi.getProduct().getId().intValue()==p.getId().intValue()){
+                //如果产品是一样的话，就进行数量追加
+                oi.setNumber(oi.getNumber()+num);
+                //使用orderItemService进行更新orderItem数量
+                orderItemService.update(oi);
+                //将found改为true，跳过下一个if判断
+                found = true;
+                //获取这个订单项的 id
+                oiid = oi.getId();
+                break;
+            }
+        }
+
+        //如果不存在对应的OrderItem,那么就新增一个订单项OrderItem
+        if(!found){
+            //生成新的订单项
+            OrderItem oi = new OrderItem();
+            //设置数量，用户和产品
+            oi.setUid(user.getId());
+            oi.setNumber(num);
+            oi.setPid(pid);
+
+            //插入到数据库
+            orderItemService.add(oi);
+            //插入到数据库
+            oiid = oi.getId();
+        }
+        //最后， 基于这个订单项id客户端跳转到结算页面/forebuy
+        return "redirect:forebuy?oiid="+oiid;
+    }
+
 }
+
 
 
 
