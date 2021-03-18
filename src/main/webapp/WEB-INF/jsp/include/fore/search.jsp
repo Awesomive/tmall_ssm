@@ -12,14 +12,14 @@
 		<div class="searchBelow">
 			<c:forEach items="${cs}" var="c" varStatus="st">
 				<c:if test="${st.count>=5 and st.count<=8}">
-						<span>
-							<a href="forecategory?cid=${c.id}">
+                        <span>
+                            <a href="forecategory?cid=${c.id}">
 									${c.name}
 							</a>
-							<c:if test="${st.count!=8}">
+                            <c:if test="${st.count!=8}">
 								<span>|</span>
 							</c:if>
-						</span>
+                        </span>
 				</c:if>
 			</c:forEach>
 		</div>

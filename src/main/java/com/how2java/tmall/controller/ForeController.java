@@ -1,5 +1,6 @@
 package com.how2java.tmall.controller;
 
+import com.github.pagehelper.PageHelper;
 import com.how2java.tmall.pojo.*;
 import com.how2java.tmall.service.*;
 import comparator.*;
@@ -194,6 +195,23 @@ public class ForeController {
         return "fore/category";
     }
 
+
+    //通过search.jsp或者simpleSearch.jsp提交数据到路径 /foresearch， 导致ForeController.search()方法被调用
+    @RequestMapping("foresearch")
+    //获取参数keyword
+    public String search( String keyword,Model model){
+
+        //根据keyword进行模糊查询，获取满足条件的前20个产品
+        PageHelper.offsetPage(0,20);
+        List<Product> ps= productService.search(keyword);
+        //为这些产品设置销量和评价数量
+        productService.setSaleAndReviewNumber(ps);
+        //把产品结合设置在model的"ps"属性上
+        model.addAttribute("ps",ps);
+        //服务端跳转到 searchResult.jsp 页面
+        return "fore/searchResult";
+    }
 }
+
 
 
