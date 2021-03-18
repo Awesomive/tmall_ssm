@@ -137,10 +137,8 @@
 <div class="imgAndInfo">
 
     <div class="imgInimgAndInfo">
-        <%--默认显示第一张图片--%>
         <img src="img/productSingle/${p.firstProductImage.id}.jpg" class="bigImg">
         <div class="smallImageDiv">
-            <%--5张小图片--%>
             <c:forEach items="${p.productSingleImages}" var="pi">
                 <img src="img/productSingle_small/${pi.id}.jpg" bigImageURL="img/productSingle/${pi.id}.jpg" class="smallImage">
             </c:forEach>
@@ -150,7 +148,6 @@
 
     <div class="infoInimgAndInfo">
 
-        <%--标题和小标题--%>
         <div class="productTitle">
             ${p.name}
         </div>
@@ -172,7 +169,7 @@
                     <span class="originalPriceDesc">价格</span>
                     <span class="originalPriceYuan">¥</span>
                     <span class="originalPrice">
-                        <%--原始价格--%>
+
                         <fmt:formatNumber type="number" value="${p.originalPrice}" minFractionDigits="2"/>
                     </span>
                 </div>
@@ -180,7 +177,6 @@
                     <span class="promotionPriceDesc">促销价 </span>
                     <span class="promotionPriceYuan">¥</span>
                     <span class="promotionPrice">
-                        <%--促销价--%>
                         <fmt:formatNumber type="number" value="${p.promotePrice}" minFractionDigits="2"/>
                     </span>
                 </div>

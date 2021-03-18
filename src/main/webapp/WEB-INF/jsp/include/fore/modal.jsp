@@ -14,22 +14,22 @@
 
 				<div class="login_acount_text">账户登录</div>
 				<div class="loginInput " >
-							<span class="loginInputIcon ">
-								<span class=" glyphicon glyphicon-user"></span>
-							</span>
+                            <span class="loginInputIcon ">
+                                <span class=" glyphicon glyphicon-user"></span>
+                            </span>
 					<input id="name" name="name" placeholder="手机/会员名/邮箱" type="text">
 				</div>
 
 				<div class="loginInput " >
-							<span class="loginInputIcon ">
-								<span class=" glyphicon glyphicon-lock"></span>
-							</span>
+                            <span class="loginInputIcon ">
+                                <span class=" glyphicon glyphicon-lock"></span>
+                            </span>
 					<input id="password" name="password"  type="password" placeholder="密码" type="text">
 				</div>
 				<span class="text-danger">不要输入真实的天猫账号密码</span><br><br>
 				<div>
 					<a href="#nowhere">忘记登录密码</a>
-					<a href="registerPage" class="pull-right">免费注册</a>
+					<a href="register.jsp" class="pull-right">免费注册</a>
 				</div>
 				<div style="margin-top:20px">
 					<button class="btn btn-block redButton loginSubmitButton" type="submit">登录</button>

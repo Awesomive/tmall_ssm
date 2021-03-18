@@ -2,14 +2,17 @@ package com.how2java.tmall.controller;
 
 import com.how2java.tmall.pojo.*;
 import com.how2java.tmall.service.*;
+import comparator.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.HtmlUtils;
 
 import javax.servlet.http.HttpSession;
+import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -116,5 +119,81 @@ public class ForeController {
         return "fore/product";
     }
 
+    @RequestMapping("forecheckLogin")
+    @ResponseBody
+    //在上一步的ajax访问路径/forecheckLogin会导致ForeController.checkLogin()方法被调用。
+    //获取session中的"user"对象
+    //如果不为空，即表示已经登录，返回字符串"success"
+    //如果为空，即表示未登录，返回字符串"fail"
+    public String checkLogin( HttpSession session) {
+        User user =(User)  session.getAttribute("user");
+        if(null!=user)
+            return "success";
+        return "fail";
+    }
+
+
+
+    @RequestMapping("foreloginAjax")
+    @ResponseBody
+    //在上一步modal.jsp中，点击了登录按钮之后，访问路径/foreloginAjax,导致ForeController.loginAjax()方法被调用
+    //1. 获取账号密码
+    //2. 通过账号密码获取User对象
+    //2.1 如果User对象为空，那么就返回"fail"字符串。
+    //2.2 如果User对象不为空，那么就把User对象放在session中，并返回"success" 字符串
+    public String loginAjax(@RequestParam("name") String name, @RequestParam("password") String password,HttpSession session) {
+        name = HtmlUtils.htmlEscape(name);
+        User user = userService.get(name,password);
+
+        if(null==user){
+            return "fail";
+        }
+        session.setAttribute("user", user);
+        return "success";
+    }
+
+    @RequestMapping("forecategory")
+    //获取参数cid
+    public String category(int cid,String sort, Model model) {
+        //根据cid获取分类Category对象 c
+        Category c = categoryService.get(cid);
+        //为c填充产品
+        productService.fill(c);
+        //为产品填充销量和评价数据
+        productService.setSaleAndReviewNumber(c.getProducts());
+
+        //获取参数sort
+        //如果sort==null，即不排序
+        if(null!=sort){
+            //如果sort!=null，则根据sort的值，从5个Comparator比较器中选择一个对应的排序器进行排序
+            switch(sort){
+                case "review":
+                    Collections.sort(c.getProducts(),new ProductReviewComparator());
+                    break;
+                case "date" :
+                    Collections.sort(c.getProducts(),new ProductDateComparator());
+                    break;
+
+                case "saleCount" :
+                    Collections.sort(c.getProducts(),new ProductSaleCountComparator());
+                    break;
+
+                case "price":
+                    Collections.sort(c.getProducts(),new ProductPriceComparator());
+                    break;
+
+                case "all":
+                    Collections.sort(c.getProducts(),new ProductAllComparator());
+                    break;
+            }
+        }
+
+        //把c放在model中
+        model.addAttribute("c", c);
+        //服务端跳转到 category.jsp
+        return "fore/category";
+    }
+
 }
+
 
