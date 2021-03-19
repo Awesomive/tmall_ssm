@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.HtmlUtils;
 
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -261,6 +262,32 @@ public class ForeController {
         return "redirect:forebuy?oiid="+oiid;
     }
 
+    //点立即购买最后，客户端跳转到结算路径： "@forebuy?oiid="+oiid;导致ForeController.buy()方法被调用
+    @RequestMapping("forebuy")
+    //通过字符串数组获取参数oiid
+    //根据购物流程环节与表关系，结算页面还需要显示在购物车中选中的多条OrderItem数据
+    //所以为了兼容从购物车页面跳转过来的需求，要用字符串数组获取多个oiid
+    public String buy( Model model,String[] oiid,HttpSession session){
+        //准备一个泛型是OrderItem的集合ois
+        List<OrderItem> ois = new ArrayList<>();
+        float total = 0;
+
+        //根据前面步骤获取的oiids，从数据库中取出OrderItem对象，并放入ois集合中
+        for (String strid : oiid) {
+            int id = Integer.parseInt(strid);
+            OrderItem oi= orderItemService.get(id);
+            //累计这些ois的价格总数，赋值在total上
+            total +=oi.getProduct().getPromotePrice()*oi.getNumber();
+            ois.add(oi);
+        }
+
+        //把订单项集合放在session的属性 "ois" 上
+        session.setAttribute("ois", ois);
+        //把总价格放在 model的属性 "total" 上
+        model.addAttribute("total", total);
+        return "fore/buy";
+    }
+    
 }
 
 
