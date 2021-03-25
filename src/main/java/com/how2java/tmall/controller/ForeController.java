@@ -287,8 +287,67 @@ public class ForeController {
         model.addAttribute("total", total);
         return "fore/buy";
     }
-    
+
+
+
+    @RequestMapping("foreaddCart")
+    @ResponseBody
+    //上一步访问地址/foreaddCart导致ForeController.addCart()方法被调用
+    //addCart()方法和立即购买中的 ForeController.buyone()步骤做的事情是一样的，区别在于返回不一样
+    //获取参数pid
+    //获取参数num
+    public String addCart(int pid, int num, Model model,HttpSession session) {
+        //根据pid获取产品对象p
+        Product p = productService.get(pid);
+        //从session中获取用户对象user
+        User user =(User)  session.getAttribute("user");
+        boolean found = false;
+
+        //如果已经存在这个产品对应的OrderItem，并且还没有生成订单，即还在购物车中。 那么就应该在对应的OrderItem基础上，调整数量
+        //基于用户对象user，查询没有生成订单的订单项集合
+        List<OrderItem> ois = orderItemService.listByUser(user.getId());
+        //遍历这个集合
+        for (OrderItem oi : ois) {
+            //如果产品是一样的话，就进行数量追加
+            if(oi.getProduct().getId().intValue()==p.getId().intValue()){
+                oi.setNumber(oi.getNumber()+num);
+                orderItemService.update(oi);
+                found = true;
+                break;
+            }
+        }
+
+        //如果不存在对应的OrderItem,那么就新增一个订单项OrderItem
+        if(!found){
+            //生成新的订单项
+            OrderItem oi = new OrderItem();
+            //设置数量，用户，产品
+            oi.setUid(user.getId());
+            oi.setNumber(num);
+            oi.setPid(pid);
+            //插入到数据库
+            orderItemService.add(oi);
+        }
+        //与ForeController.buyone() 客户端跳转到结算页面不同的是， 最后返回字符串"success"，表示添加成功
+        return "success";
+    }
+
+
+    @RequestMapping("forecart")
+    public String cart( Model model,HttpSession session) {
+        //通过session获取当前用户
+        //一定要登录才访问，否则拿不到用户对象,会报错
+        User user =(User)  session.getAttribute("user");
+        //获取为这个用户关联的订单项集合 ois
+        List<OrderItem> ois = orderItemService.listByUser(user.getId());
+        //把ois放在model中
+        model.addAttribute("ois", ois);
+        //服务端跳转到cart.jsp
+        return "fore/cart";
+    }
+
 }
+
 
 
 
