@@ -69,17 +69,23 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         String uri = request.getRequestURI();
         uri = StringUtils.remove(uri, contextPath);
 //        System.out.println(uri);
+        //如果访问的地址是/fore开头
         if(uri.startsWith("/fore")){
+            //取出fore后面的字符串，比如是forecart,那么就取出cart
             String method = StringUtils.substringAfterLast(uri,"/fore" );
+            //判断cart是否是在noNeedAuthPage
+            //如果不在，那么就需要进行是否登录验证
             if(!Arrays.asList(noNeedAuthPage).contains(method)){
+                //从session中取出"user"对象
                 User user =(User) session.getAttribute("user");
+                //如果对象不存在，就客户端跳转到login.jsp
                 if(null==user){
                     response.sendRedirect("loginPage");
                     return false;
                 }
             }
         }
-
+        //否则就正常执行
         return true;
 
     }

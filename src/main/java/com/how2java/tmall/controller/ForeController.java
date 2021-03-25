@@ -346,6 +346,50 @@ public class ForeController {
         return "fore/cart";
     }
 
+
+     //点击购物车增加或者减少按钮后
+    @RequestMapping("forechangeOrderItem")
+    @ResponseBody
+    //获取pid和number
+    public String changeOrderItem( Model model,HttpSession session, int pid, int number) {
+        //判断用户是否登录
+        User user =(User)  session.getAttribute("user");
+        if(null==user)
+            return "fail";
+
+        //遍历出用户当前所有的未生成订单的OrderItem
+        List<OrderItem> ois = orderItemService.listByUser(user.getId());
+        for (OrderItem oi : ois) {
+            //根据pid找到匹配的OrderItem，并修改数量后更新到数据库
+            if(oi.getProduct().getId().intValue()==pid){
+                oi.setNumber(number);
+                orderItemService.update(oi);
+                break;
+            }
+
+        }
+        //返回字符串"success"
+        return "success";
+    }
+
+    //购物车删除按钮
+    @RequestMapping("foredeleteOrderItem")
+    @ResponseBody
+    //获取oiid
+    public String deleteOrderItem( Model model,HttpSession session,int oiid){
+        //判断用户是否登录
+        User user =(User)  session.getAttribute("user");
+        if(null==user)
+            return "fail";
+
+        //删除oiid对应的OrderItem数据
+        orderItemService.delete(oiid);
+        //返回字符串"success"
+        return "success";
+    }
+
+
+
 }
 
 
