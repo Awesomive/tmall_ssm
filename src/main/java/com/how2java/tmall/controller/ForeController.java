@@ -489,6 +489,63 @@ public class ForeController {
         return "success";
         // boughtPage.jsp 中的javascript代码获取返回字符串是success的时候，隐藏掉当前这行订单数据。
     }
+
+    //评论
+    @RequestMapping("forereview")
+    //获取参数oid
+    public String review( Model model,int oid) {
+        //根据oid获取订单对象o
+        Order o = orderService.get(oid);
+        //为订单对象填充订单项
+        orderItemService.fill(o);
+        //获取第一个订单项对应的产品,因为在评价页面需要显示一个产品图片，那么就使用这第一个产品的图片了
+        Product p = o.getOrderItems().get(0).getProduct();
+        //获取这个产品的评价集合
+        List<Review> reviews = reviewService.list(p.getId());
+        //为产品设置评价数量和销量
+        productService.setSaleAndReviewNumber(p);
+        //把产品，订单和评价集合放在request上
+        model.addAttribute("p", p);
+        model.addAttribute("o", o);
+        model.addAttribute("reviews", reviews);
+        //服务端跳转到 review.jsp
+        return "fore/review";
+    }
+
+    //提交评价
+    @RequestMapping("foredoreview")
+    //获取参数oid
+    public String doreview( Model model,HttpSession session,@RequestParam("oid") int oid,@RequestParam("pid") int pid,String content) {
+        //根据oid获取订单对象o
+        Order o = orderService.get(oid);
+        //修改订单对象状态
+        o.setStatus(OrderService.finish);
+        //更新订单对象到数据库
+        orderService.update(o);
+
+        //获取参数pid
+        //根据pid获取产品对象
+        Product p = productService.get(pid);
+        //获取参数content (评价信息)
+        //对评价信息进行转义，道理同注册ForeController.register()
+        content = HtmlUtils.htmlEscape(content);
+
+        //从session中获取当前用户
+        User user =(User)  session.getAttribute("user");
+        //创建评价对象review
+        Review review = new Review();
+        //为评价对象review设置 评价信息，产品，时间，用户
+        review.setContent(content);
+        review.setPid(pid);
+        review.setCreateDate(new Date());
+        review.setUid(user.getId());
+        //增加到数据库
+        reviewService.add(review);
+
+        //客户端跳转到/forereview： 评价产品页面，并带上参数showonly=true
+        return "redirect:forereview?oid="+oid+"&showonly=true";
+        //在reviewPage.jsp中，当参数showonly==true，那么就显示当前产品的所有评价信息
+    }
 }
 
 
