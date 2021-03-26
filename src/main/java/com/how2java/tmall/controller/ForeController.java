@@ -445,7 +445,50 @@ public class ForeController {
         return "fore/bought";
     }
 
+    //确认收货
+    @RequestMapping("foreconfirmPay")
+    //获取参数oid
+    public String confirmPay( Model model,int oid) {
+        //通过oid获取订单对象o
+        Order o = orderService.get(oid);
+        //为订单对象填充订单项
+        orderItemService.fill(o);
+        //把订单对象放在request的属性"o"上
+        model.addAttribute("o", o);
+        //服务端跳转到 confirmPay.jsp
+        return "fore/confirmPay";
+    }
 
+    //确认收货成功
+    @RequestMapping("foreorderConfirmed")
+    //获取参数oid
+    public String orderConfirmed( Model model,int oid) {
+        //根据参数oid获取Order对象o
+        Order o = orderService.get(oid);
+        //修改对象o的状态为等待评价，修改其确认支付时间
+        o.setStatus(OrderService.waitReview);
+        o.setConfirmDate(new Date());
+        //更新到数据库
+        orderService.update(o);
+        //服务端跳转到orderConfirmed.jsp页面
+        return "fore/orderConfirmed";
+    }
+
+    //我的订单页上删除
+    @RequestMapping("foredeleteOrder")
+    @ResponseBody
+    //获取参数oid
+    public String deleteOrder( Model model,int oid){
+        //根据oid获取订单对象o
+        Order o = orderService.get(oid);
+        //修改状态
+        o.setStatus(OrderService.delete);
+        //更新到数据库
+        orderService.update(o);
+        //返回字符串"success"
+        return "success";
+        // boughtPage.jsp 中的javascript代码获取返回字符串是success的时候，隐藏掉当前这行订单数据。
+    }
 }
 
 
