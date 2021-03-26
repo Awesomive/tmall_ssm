@@ -427,6 +427,25 @@ public class ForeController {
         return "fore/payed";
     }
 
+
+    @RequestMapping("forebought")
+    public String bought( Model model,HttpSession session) {
+        //通过session获取用户user
+        User user =(User)  session.getAttribute("user");
+        //查询user所有的状态不是"delete" 的订单集合os
+        List<Order> os= orderService.list(user.getId(),OrderService.delete);
+
+        //为这些订单填充订单项
+        orderItemService.fill(os);
+
+        //把os放在model的属性"os"上
+        model.addAttribute("os", os);
+
+        //服务端跳转到bought.jsp
+        return "fore/bought";
+    }
+
+
 }
 
 

@@ -15,10 +15,10 @@ public interface OrderService {
     String delete = "delete";
 
     void add(Order c);
-
     float add(Order c,List<OrderItem> ois);
     void delete(int id);
     void update(Order c);
     Order get(int id);
     List list();
+    List list(int uid, String excludedStatus);
 }
