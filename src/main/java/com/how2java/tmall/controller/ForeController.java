@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.how2java.tmall.pojo.*;
 import com.how2java.tmall.service.*;
 import comparator.*;
+import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.HtmlUtils;
 
 import javax.servlet.http.HttpSession;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -316,7 +319,6 @@ public class ForeController {
                 break;
             }
         }
-
         //如果不存在对应的OrderItem,那么就新增一个订单项OrderItem
         if(!found){
             //生成新的订单项
@@ -389,6 +391,41 @@ public class ForeController {
     }
 
 
+    @RequestMapping("forecreateOrder")
+    public String createOrder( Model model,Order order,HttpSession session){
+        //从session中获取user对象
+        User user =(User)  session.getAttribute("user");
+        //根据当前时间加上一个4位随机数生成订单号
+        String orderCode = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()) + RandomUtils.nextInt(10000);
+        //通过参数Order接受地址，邮编，收货人，用户留言等信息
+        order.setOrderCode(orderCode);
+        order.setCreateDate(new Date());
+        order.setUid(user.getId());
+        order.setStatus(OrderService.waitPay);
+        List<OrderItem> ois= (List<OrderItem>)  session.getAttribute("ois");
+
+        //根据上述参数，创建订单对象
+        float total =orderService.add(order,ois);
+        //客户端跳转到确认支付页forealipay，并带上订单id和总金额
+        //PageController.alipay()方法被调用
+        return "redirect:forealipay?oid="+order.getId() +"&total="+total;
+    }
+
+    @RequestMapping("forepayed")
+    //获取参数oid
+    public String payed(int oid, float total, Model model) {
+        //根据oid获取到订单对象order
+        Order order = orderService.get(oid);
+        //修改订单对象的状态和支付时间
+        order.setStatus(OrderService.waitDelivery);
+        order.setPayDate(new Date());
+        //更新这个订单对象到数据库
+        orderService.update(order);
+        //把这个订单对象放在model的属性"o"上
+        model.addAttribute("o", order);
+        //服务端跳转到payed.jsp
+        return "fore/payed";
+    }
 
 }
 
